@@ -1,0 +1,17 @@
+apiVersion: plugin.halo.run/v1alpha1
+kind: Plugin
+metadata:
+  name: willow-mde
+spec:
+  enabled: true
+  requires: ">=2.10.0"
+  author:
+    name: guqing
+    website: https://github.com/guqing/willow-mde
+  logo: logo.svg
+  homepage: https://github.com/guqing/willow-mde
+  displayName: "Willow Markdown 编辑器"
+  description: "一个漂亮、现代、可定制的 Markdown 编辑器，由 CodeMirror 6 和 TypeScript 提供支持。"
+  license:
+    - name: "GPL-3.0"
+      url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"
