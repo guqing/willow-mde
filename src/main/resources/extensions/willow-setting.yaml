@@ -1,0 +1,17 @@
+apiVersion: v1alpha1
+kind: Setting
+metadata:
+  name: willow-mde-setting
+spec:
+  forms:
+    - group: basic
+      label: 基本设置
+      formSchema:
+        - $formkit: checkbox
+          label: "启用 VIM 模式"
+          name: vimMode
+          value: false
+        - $formkit: checkbox
+          label: "拼写检查"
+          name: spellcheck
+          value: false

@@ -12,6 +12,8 @@ spec:
   homepage: https://github.com/guqing/willow-mde
   displayName: "Willow Markdown 编辑器"
   description: "一个漂亮、现代、可定制的 Markdown 编辑器，由 CodeMirror 6 和 TypeScript 提供支持。"
+  settingName: willow-mde-setting
+  configMapName: willow-mde-config
   license:
     - name: "GPL-3.0"
       url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"

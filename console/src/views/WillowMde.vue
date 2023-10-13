@@ -9,6 +9,21 @@ import { willowLightTheme } from "../plugins/willow-theme";
 import { computedAsync, useDebounceFn } from "@vueuse/core";
 import remarkHtml from "../lib/remark";
 
+type Metadata = {
+  name: string;
+  labels?: Record<string, string>;
+  annotations?: Record<string, string>;
+  creationTimestamp: string;
+  deletionTimestamp: string;
+};
+
+type ConfigMap = {
+  apiVersion: string;
+  kind: string;
+  metadata: Metadata;
+  data?: Record<string, string>;
+};
+
 const markdown = ref("");
 
 const html = computedAsync(async () => {
@@ -18,7 +33,7 @@ const html = computedAsync(async () => {
 // debounce OnUpdate
 const debounceOnUpdate = useDebounceFn(() => {
   emit("update:raw", markdown.value);
-  emit("update:content", html.value);
+  emit("update:content", html.value || "");
 }, 250);
 
 const props = withDefaults(
@@ -32,8 +47,19 @@ const props = withDefaults(
   }
 );
 
-onMounted(() => {
+onMounted(async () => {
   markdown.value = props.raw;
+
+  try {
+    const response = await fetch("/api/v1alpha1/configmaps/willow-mde-config");
+    const configMap: ConfigMap = await response.json();
+    const { vimMode, spellcheck } = JSON.parse(configMap.data?.basic as string);
+    options.vim = vimMode;
+    const interfaceOption = options.interface as Record<string, object>;
+    interfaceOption.spellcheck = spellcheck;
+  } catch (e) {
+    // ignore this
+  }
 });
 
 const emit = defineEmits<{
@@ -61,7 +87,7 @@ const options: Record<string, unknown> = reactive({
     images: true,
     lists: true,
     readonly: false,
-    spellcheck: true,
+    spellcheck: false,
     toolbar: true,
   },
   katex: false,
@@ -135,6 +161,3 @@ const options: Record<string, unknown> = reactive({
   outline: unset !important;
 }
 </style>
-
-function useDebounceFn(arg0: () => void, arg1: number) { throw new
-Error("Function not implemented."); }
