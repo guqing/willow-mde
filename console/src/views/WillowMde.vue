@@ -6,6 +6,7 @@
 import InkMde from "ink-mde/vue";
 import { onMounted, reactive, ref } from "vue";
 import { willowLightTheme } from "../plugins/willow-theme";
+import { drawBetterSelection } from "../plugins/draw-selection";
 import { computedAsync, useDebounceFn } from "@vueuse/core";
 import remarkHtml from "../lib/remark";
 
@@ -96,7 +97,7 @@ const options: Record<string, unknown> = reactive({
     shiftTab: true,
   },
   placeholder: "",
-  plugins: [willowLightTheme],
+  plugins: [willowLightTheme, drawBetterSelection],
   readability: false,
   search: true,
   selections: [],
