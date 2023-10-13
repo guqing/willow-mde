@@ -10,19 +10,11 @@ import { drawBetterSelection } from "../plugins/draw-selection";
 import { computedAsync, useDebounceFn } from "@vueuse/core";
 import remarkHtml from "../lib/remark";
 
-type Metadata = {
-  name: string;
-  labels?: Record<string, string>;
-  annotations?: Record<string, string>;
-  creationTimestamp: string;
-  deletionTimestamp: string;
-};
-
-type ConfigMap = {
-  apiVersion: string;
-  kind: string;
-  metadata: Metadata;
-  data?: Record<string, string>;
+type EditorConfig = {
+  basic: {
+    vimMode: boolean;
+    spellcheck: boolean;
+  };
 };
 
 const markdown = ref("");
@@ -52,11 +44,13 @@ onMounted(async () => {
   markdown.value = props.raw;
 
   try {
-    const response = await fetch("/api/v1alpha1/configmaps/willow-mde-config");
-    const configMap: ConfigMap = await response.json();
-    const { vimMode, spellcheck } = JSON.parse(configMap.data?.basic as string);
+    const response = await fetch(
+      "/apis/api.willow.guqing.github.io/editor-options"
+    );
+    const editorConfig: EditorConfig = await response.json();
+    const { vimMode, spellcheck } = editorConfig?.basic;
     options.vim = vimMode;
-    const interfaceOption = options.interface as Record<string, object>;
+    const interfaceOption = options.interface as Record<string, any>;
     interfaceOption.spellcheck = spellcheck;
   } catch (e) {
     // ignore this
