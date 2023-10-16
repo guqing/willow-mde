@@ -6,6 +6,7 @@ import { computedAsync, useDebounceFn } from "@vueuse/core";
 import remarkHtml from "../lib/remark";
 import { willowLightTheme } from "../plugins/willow-theme";
 import { drawBetterSelection } from "../plugins/draw-selection";
+import {Toolbar} from "../components/toolbar";
 
 type EditorConfig = {
   basic: {
@@ -65,7 +66,7 @@ const options: Ink.Options = reactive({
     lists: true,
     readonly: false,
     spellcheck: false,
-    toolbar: true,
+    toolbar: false,
   },
   katex: false,
   keybindings: {
@@ -82,7 +83,7 @@ const options: Ink.Options = reactive({
     code: false,
     codeBlock: true,
     heading: true,
-    image: false,
+    image: true,
     italic: true,
     link: true,
     list: true,
@@ -144,6 +145,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Toolbar :editor="editor" v-if="editor"/>
   <div ref="willow" class="willow-mde"></div>
 </template>
 
@@ -157,6 +159,7 @@ onMounted(async () => {
 
 .willow-mde {
   background-color: #fff;
+  height: 100%;
 }
 
 .ink-mde {
@@ -168,22 +171,7 @@ onMounted(async () => {
 .ink-mde-editor {
   padding: 1.5rem !important;
 }
-.ink-mde .ink-mde-toolbar .ink-mde-container {
-  justify-content: center;
-}
 
-.ink-mde .ink-mde-toolbar {
-  border-bottom-width: 1px;
-  background-color: #fff !important;
-}
-.ink-mde .ink-mde-toolbar .ink-button {
-  padding: 0.25em !important;
-  border-radius: 0.125em !important;
-}
-.ink-mde .ink-mde-toolbar .ink-button svg {
-  height: 1.4em !important;
-  width: 1.4em !important;
-}
 .cm-focused {
   outline: unset !important;
 }

@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@codemirror/language':
+    specifier: ^6.9.1
+    version: 6.9.1
   '@codemirror/state':
     specifier: ^6.2.1
     version: 6.2.1
@@ -51,6 +54,9 @@ dependencies:
     version: 3.3.4
 
 devDependencies:
+  '@iconify-json/mdi':
+    specifier: ^1.1.54
+    version: 1.1.54
   '@iconify/json':
     specifier: ^2.2.76
     version: 2.2.76
@@ -894,6 +900,12 @@ packages:
 
   /@humanwhocodes/object-schema@1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    dev: true
+
+  /@iconify-json/mdi@1.1.54:
+    resolution: {integrity: sha512-3QAsxte90EalbN2e8J30OqSSZz9qN2x+kmykQwsPahoW2dOtSvj+BR9YdiUd9A5XKk2nuU4UH5Gj/cq6WZ6CzQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
     dev: true
 
   /@iconify/json@2.2.76:
