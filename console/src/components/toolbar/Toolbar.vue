@@ -1,14 +1,18 @@
 <script lang="ts" setup>
 import type * as Ink from "ink-mde";
+import type { AttachmentLike } from "@halo-dev/console-shared";
+
 import MdiFormatBold from "~icons/mdi/format-bold";
 import MdiFormatHeaderUp from "~icons/mdi/format-header-up";
-import MdiFormatItalic from '~icons/mdi/format-italic'
-import MdiFormatQuoteCloseOutline from '~icons/mdi/format-quote-close-outline'
-import MdiCodeTags from '~icons/mdi/code-tags'
-import MdiApplicationBracketsOutline from '~icons/mdi/application-brackets-outline'
-import MdiFormatListBulletedSquare from '~icons/mdi/format-list-bulleted-square'
-import MdiFormatListNumbered from '~icons/mdi/format-list-numbered'
-import MdiFormatListChecks from '~icons/mdi/format-list-checks'
+import MdiFormatItalic from "~icons/mdi/format-italic";
+import MdiFormatQuoteCloseOutline from "~icons/mdi/format-quote-close-outline";
+import MdiCodeTags from "~icons/mdi/code-tags";
+import MdiApplicationBracketsOutline from "~icons/mdi/application-brackets-outline";
+import MdiFormatListBulletedSquare from "~icons/mdi/format-list-bulleted-square";
+import MdiFormatListNumbered from "~icons/mdi/format-list-numbered";
+import MdiFormatListChecks from "~icons/mdi/format-list-checks";
+import MdiFileImageBox from "~icons/mdi/file-image-box";
+import { ref } from "vue";
 
 enum Markup {
   Bold = "bold",
@@ -57,7 +61,8 @@ const actions = [
     type: Markup.CodeBlock,
     icon: MdiApplicationBracketsOutline,
     onclick: () => formatAs(Markup.CodeBlock),
-  },{
+  },
+  {
     type: Markup.Code,
     icon: MdiCodeTags,
     onclick: () => formatAs(Markup.Code),
@@ -76,9 +81,58 @@ const actions = [
     type: Markup.TaskList,
     icon: MdiFormatListChecks,
     onclick: () => formatAs(Markup.TaskList),
-  }
+  },
+  {
+    type: Markup.Image,
+    icon: MdiFileImageBox,
+    onclick: () => {
+      attachmentSelectorModal.value = true;
+    },
+  },
 ];
+
+const insertBlock = (content: string) => {
+  props.editor.insert(content + "\n");
+};
+
+const attachmentSelectorModal = ref(false);
+const onAttachmentSelect = (attachments: AttachmentLike[]) => {
+  if (!attachments.length) {
+    return;
+  }
+
+  attachments.forEach((attachment) => {
+    if (typeof attachment === "string") {
+      insertBlock(`![](${attachment})`);
+    } else if ("url" in attachment) {
+      insertBlock(`![${attachment.type}](${attachment.url})`);
+    } else if ("spec" in attachment) {
+      const { mediaType, displayName } = attachment.spec;
+      const { permalink } = attachment.status || {};
+
+      if (mediaType?.startsWith("image/")) {
+        insertBlock(`![${displayName}](${permalink})`);
+        return;
+      }
+
+      if (mediaType?.startsWith("video/")) {
+        insertBlock(`<video src="${permalink}"></video>`);
+        return;
+      }
+
+      if (mediaType?.startsWith("audio/")) {
+        insertBlock(`<audio src="${permalink}"></audio>`);
+        return;
+      }
+
+      insertBlock(`[${displayName}](${permalink})`);
+    }
+  });
+
+  attachmentSelectorModal.value = false;
+};
 </script>
+
 <template>
   <div class="willow-mde-toolbar">
     <div class="willow-mde-container">
@@ -92,6 +146,10 @@ const actions = [
         <component :is="action.icon" />
       </button>
     </div>
+    <AttachmentSelectorModal
+      v-model:visible="attachmentSelectorModal"
+      @select="onAttachmentSelect"
+    />
   </div>
 </template>
 <style scoped>
