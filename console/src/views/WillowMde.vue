@@ -1,14 +1,11 @@
-<template>
-  <InkMde v-model="markdown" :options="options" class="willow-mde" />
-</template>
-
 <script lang="ts" setup>
-import InkMde from "ink-mde/vue";
-import { onMounted, reactive, ref } from "vue";
-import { willowLightTheme } from "../plugins/willow-theme";
-import { drawBetterSelection } from "../plugins/draw-selection";
+import { ink } from "ink-mde";
+import type * as Ink from "ink-mde";
+import { onMounted, reactive, ref, watch, type Ref } from "vue";
 import { computedAsync, useDebounceFn } from "@vueuse/core";
 import remarkHtml from "../lib/remark";
+import { willowLightTheme } from "../plugins/willow-theme";
+import { drawBetterSelection } from "../plugins/draw-selection";
 
 type EditorConfig = {
   basic: {
@@ -17,17 +14,9 @@ type EditorConfig = {
   };
 };
 
+const willow: Ref<HTMLElement | null> = ref(null);
 const markdown = ref("");
-
-const html = computedAsync(async () => {
-  return await remarkHtml(markdown.value);
-}, null);
-
-// debounce OnUpdate
-const debounceOnUpdate = useDebounceFn(() => {
-  emit("update:raw", markdown.value);
-  emit("update:content", html.value || "");
-}, 250);
+const editor = ref<Ink.Instance>();
 
 const props = withDefaults(
   defineProps<{
@@ -40,29 +29,27 @@ const props = withDefaults(
   }
 );
 
-onMounted(async () => {
-  markdown.value = props.raw;
-
-  try {
-    const response = await fetch(
-      "/apis/api.willow.guqing.github.io/editor-options"
-    );
-    const editorConfig: EditorConfig = await response.json();
-    const { vimMode, spellcheck } = editorConfig?.basic;
-    options.vim = vimMode;
-    const interfaceOption = options.interface as Record<string, any>;
-    interfaceOption.spellcheck = spellcheck;
-  } catch (e) {
-    // ignore this
-  }
-});
-
 const emit = defineEmits<{
   (event: "update:raw", value: string): void;
   (event: "update:content", value: string): void;
+  (event: "update", value: string): void;
 }>();
 
-const options: Record<string, unknown> = reactive({
+// debounce OnUpdate
+const debounceOnUpdate = useDebounceFn(() => {
+  emit("update:raw", markdown.value);
+  emit("update:content", html.value || "");
+  emit("update", markdown.value)
+}, 250);
+
+const options: Ink.Options = reactive({
+  doc: markdown.value,
+  hooks: {
+    afterUpdate: (doc: string) => {
+      markdown.value = doc;
+      debounceOnUpdate();
+    },
+  },
   files: {
     clipboard: false,
     dragAndDrop: false,
@@ -70,13 +57,8 @@ const options: Record<string, unknown> = reactive({
     injectMarkup: true,
     types: ["image/*"],
   },
-  hooks: {
-    afterUpdate: () => {
-      debounceOnUpdate();
-    },
-  },
   interface: {
-    appearance: "light",
+    appearance: "light" as const,
     attribution: false,
     autocomplete: true,
     images: true,
@@ -91,7 +73,7 @@ const options: Record<string, unknown> = reactive({
     shiftTab: true,
   },
   placeholder: "",
-  plugins: [willowLightTheme, drawBetterSelection],
+  plugins: [],
   readability: false,
   search: true,
   selections: [],
@@ -113,7 +95,57 @@ const options: Record<string, unknown> = reactive({
   trapTab: undefined,
   vim: false,
 });
+
+options.plugins?.push(willowLightTheme, drawBetterSelection);
+
+watch(
+  options,
+  (newValue, oldValue) => {
+    if(editor.value) {
+      editor.value.reconfigure(newValue)
+    }
+  }
+)
+
+watch(markdown, (newValue, oldValue) => {
+  if(editor.value?.getDoc() !== newValue) {
+    editor.value?.update(newValue)
+  }
+})
+
+const html = computedAsync(async () => {
+  return await remarkHtml(markdown.value);
+}, null);
+
+onMounted(async () => {
+  markdown.value = props.raw;
+
+  if (willow.value) {
+    editor.value = ink(willow.value, options);
+
+    willow.value.addEventListener("input", ((event: InputEvent) => {
+      event.stopPropagation();
+    }) as EventListener);
+  }
+
+  try {
+    const response = await fetch(
+      "/apis/api.willow.guqing.github.io/editor-options"
+    );
+    const editorConfig: EditorConfig = await response.json();
+    const { vimMode, spellcheck } = editorConfig?.basic;
+    options.vim = vimMode;
+    const interfaceOption = options.interface as Record<string, any>;
+    interfaceOption.spellcheck = spellcheck;
+  } catch (e) {
+    // ignore this
+  }
+});
 </script>
+
+<template>
+  <div ref="willow" class="willow-mde"></div>
+</template>
 
 <style>
 .ink {
