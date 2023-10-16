@@ -134,18 +134,21 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
 </script>
 
 <template>
-  <div class="willow-mde-toolbar">
-    <div class="willow-mde-container">
-      <button
-        class="willow-button"
-        v-for="action in actions"
-        :key="action.type"
-        @click="action.onclick"
-        type="button"
-      >
-        <component :is="action.icon" />
-      </button>
+  <div>
+    <div class="willow-mde-toolbar">
+      <div class="willow-mde-container">
+        <button
+          class="willow-button"
+          v-for="action in actions"
+          :key="action.type"
+          @click="action.onclick"
+          type="button"
+        >
+          <component :is="action.icon" />
+        </button>
+      </div>
     </div>
+
     <AttachmentSelectorModal
       v-model:visible="attachmentSelectorModal"
       @select="onAttachmentSelect"
