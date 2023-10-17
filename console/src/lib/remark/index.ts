@@ -6,10 +6,12 @@ import rehypeRaw from "rehype-raw";
 import remarkBreaks from 'remark-breaks';
 import remarkImages from 'remark-images';
 import rehypeHighlight from "rehype-highlight";
+import remarkGfm from 'remark-gfm';
 
 const toHtml = async (sourceCode: string): Promise<string> => {
   var file = await await unified()
     .use(remarkParse)
+    .use(remarkGfm)
     .use(remarkBreaks)
     .use(remarkImages)
     .use(remarkRehype, { allowDangerousHtml: true })
