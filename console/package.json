@@ -15,6 +15,7 @@
     "@codemirror/view": "^6.19.0",
     "@halo-dev/components": "^1.5.0",
     "@halo-dev/console-shared": "^2.10.0",
+    "@susisu/mte-kernel": "^2.1.1",
     "@vueuse/core": "^10.5.0",
     "axios": "^1.5.1",
     "ink-mde": "^0.29.1",
