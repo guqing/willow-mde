@@ -6,7 +6,8 @@ import { computedAsync, useDebounceFn } from "@vueuse/core";
 import remarkHtml from "../lib/remark";
 import { willowLightTheme } from "../plugins/willow-theme";
 import { drawBetterSelection } from "../plugins/draw-selection";
-import {Toolbar} from "../components/toolbar";
+import { betterTable } from "@/plugins/better-table";
+import { Toolbar } from "../components/toolbar";
 
 type EditorConfig = {
   basic: {
@@ -40,7 +41,7 @@ const emit = defineEmits<{
 const debounceOnUpdate = useDebounceFn(() => {
   emit("update:raw", markdown.value);
   emit("update:content", html.value || "");
-  emit("update", markdown.value)
+  emit("update", markdown.value);
 }, 250);
 
 const options: Ink.Options = reactive({
@@ -97,22 +98,19 @@ const options: Ink.Options = reactive({
   vim: false,
 });
 
-options.plugins?.push(willowLightTheme, drawBetterSelection);
+options.plugins?.push(willowLightTheme, drawBetterSelection, betterTable);
 
-watch(
-  options,
-  (newValue, oldValue) => {
-    if(editor.value) {
-      editor.value.reconfigure(newValue)
-    }
+watch(options, (newValue, oldValue) => {
+  if (editor.value) {
+    editor.value.reconfigure(newValue);
   }
-)
+});
 
 watch(markdown, (newValue, oldValue) => {
-  if(editor.value?.getDoc() !== newValue) {
-    editor.value?.update(newValue)
+  if (editor.value?.getDoc() !== newValue) {
+    editor.value?.update(newValue);
   }
-})
+});
 
 const html = computedAsync(async () => {
   return await remarkHtml(markdown.value);
@@ -145,7 +143,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Toolbar :editor="editor" v-if="editor"/>
+  <Toolbar :editor="editor" v-if="editor" />
   <div ref="willow" class="willow-mde"></div>
 </template>
 
@@ -172,7 +170,7 @@ onMounted(async () => {
   padding: 1.5rem !important;
 }
 
-.cm-focused {
+.willow-mde .cm-focused {
   outline: unset !important;
 }
 </style>

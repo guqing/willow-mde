@@ -13,6 +13,9 @@ dependencies:
   '@halo-dev/console-shared':
     specifier: ^2.10.0
     version: 2.10.0(vue-router@4.2.5)(vue@3.3.4)
+  '@susisu/mte-kernel':
+    specifier: ^2.1.1
+    version: 2.1.1
   '@vueuse/core':
     specifier: ^10.5.0
     version: 10.5.0(vue@3.3.4)
@@ -1126,6 +1129,12 @@ packages:
   /@rushstack/eslint-patch@1.3.1:
     resolution: {integrity: sha512-RkmuBcqiNioeeBKbgzMlOdreUkJfYaSjwgx9XDgGGpjvWgyaxWvDmZVSN9CS6LjEASadhgPv2BcFp+SeouWXXA==}
     dev: true
+
+  /@susisu/mte-kernel@2.1.1:
+    resolution: {integrity: sha512-i2lucPD0BOUNIY6P0MGIUbJ/piV8iNzwB8QU1fdkRLls85rq8NJa75oeZVWo2PLrUWjN64+3oD85kZFsx3ovyA==}
+    dependencies:
+      meaw: 5.0.0
+    dev: false
 
   /@tootallnate/once@2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
@@ -3522,6 +3531,11 @@ packages:
     resolution: {integrity: sha512-0H44vDimn51F0YwvxSJSm0eCDOJTRlmN0R1yBh4HLj9wiV1Dn0QoXGbvFAWj2hSItVTlCmBF1hqKlIyUBVFLPg==}
     dependencies:
       '@types/mdast': 4.0.1
+    dev: false
+
+  /meaw@5.0.0:
+    resolution: {integrity: sha512-yaK9Pnj6JrLcQGEqDUS0WGUEiaFg9Q215isi8mzcDVOjeGr5oS863hu+/ZS49g+azKPo5Wbpk3tgkP2+YOyZZw==}
+    engines: {node: '>=10.0.0'}
     dev: false
 
   /memorystream@0.3.1:
