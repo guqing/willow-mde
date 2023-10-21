@@ -3,7 +3,7 @@ import { ink } from "ink-mde";
 import type * as Ink from "ink-mde";
 import { onMounted, reactive, ref, watch, type Ref } from "vue";
 import { computedAsync, useDebounceFn } from "@vueuse/core";
-import remarkHtml from "../lib/remark";
+import {renderToHtml} from "@/lib/remark";
 import { willowLightTheme } from "../plugins/willow-theme";
 import { drawBetterSelection } from "../plugins/draw-selection";
 import { betterTable } from "@/plugins/better-table";
@@ -113,7 +113,7 @@ watch(markdown, (newValue, oldValue) => {
 });
 
 const html = computedAsync(async () => {
-  return await remarkHtml(markdown.value);
+  return await renderToHtml(markdown.value);
 }, null);
 
 onMounted(async () => {
@@ -172,5 +172,9 @@ onMounted(async () => {
 
 .willow-mde .cm-focused {
   outline: unset !important;
+}
+.willow-mde .cm-line img.cm-widgetBuffer {
+  display: none !important;
+  height: 0 !important;
 }
 </style>

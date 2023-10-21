@@ -3,13 +3,13 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import rehypeRaw from "rehype-raw";
-import remarkBreaks from 'remark-breaks';
-import remarkImages from 'remark-images';
+import remarkBreaks from "remark-breaks";
+import remarkImages from "remark-images";
 import rehypeHighlight from "rehype-highlight";
-import remarkGfm from 'remark-gfm';
+import remarkGfm from "remark-gfm";
 
-const toHtml = async (sourceCode: string): Promise<string> => {
-  var file = await await unified()
+export const renderToHtml = async (sourceCode: string): Promise<string> => {
+  var file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkBreaks)
@@ -22,4 +22,12 @@ const toHtml = async (sourceCode: string): Promise<string> => {
   return String(file);
 };
 
-export default toHtml;
+export const renderMarkdownFregment = (sourceCode: string): string => {
+  const file = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRehype)
+  .use(rehypeStringify)
+  .processSync(sourceCode)
+  return String(file);
+};
