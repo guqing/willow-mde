@@ -1,14 +1,16 @@
 import { plugin } from "ink-mde";
 import { createTableEditor } from "@/lib/mte-kernel";
 import { options, TableEditor, Alignment } from "@susisu/mte-kernel";
-import { Decoration, EditorView, ViewPlugin } from "@codemirror/view";
+import { Decoration, EditorView, ViewPlugin, keymap } from "@codemirror/view";
 import { buildWidget } from "@/lib/codemirror-kit/decorations";
 import { RangeSet, StateField } from "@codemirror/state";
 import type { EditorState, Extension, Range } from "@codemirror/state";
-import type { DecorationSet } from "@codemirror/view";
+import type { DecorationSet, KeyBinding } from "@codemirror/view";
+import { insertNewlineAndIndent } from "@codemirror/commands";
 import { syntaxTree } from "@codemirror/language";
 import { TableRangeDetector } from "@/lib/mte-kernel/table-helper";
 import { renderMarkdownFregment } from "@/lib/remark";
+import { priorRunHandlers, buildKeymap } from "@/lib/codemirror-kit/keymap";
 
 // options for the table editor
 const opts = options({
@@ -17,129 +19,82 @@ const opts = options({
 });
 
 const keyMapOf = (
-  event: KeyboardEvent,
+  view: EditorView,
   tableEditor: TableEditor
-): Map<string, KeyOperation> => {
-  console.log(event);
-  const obj = {
-    Tab: (): void => {
-      event.preventDefault();
-      tableEditor.nextCell(opts);
+): ReadonlyArray<KeyBinding> => {
+  const tableKeyMap: ReadonlyArray<KeyBinding> = [
+    { key: "Tab", run: () => tableEditor.nextCell(opts) },
+    { key: "Shift-Tab", run: () => tableEditor.previousCell(opts) },
+    {
+      key: "Enter",
+      run: () => {
+        if (tableEditor._textEditor.getCursorPosition().column !== 0) {
+          tableEditor.nextRow(opts);
+          return true;
+        }
+        return insertNewlineAndIndent(view);
+      },
     },
-    "Shift-Tab": () => {
-      tableEditor.previousCell(opts);
+    { key: "Ctrl-Enter", run: () => tableEditor.escape(opts) },
+    { key: "Cmd-Enter", run: () => tableEditor.escape(opts) },
+    {
+      key: "Shift-Ctrl-Left",
+      run: () => tableEditor.alignColumn(Alignment.LEFT, opts),
     },
-    Enter: () => {
-      if(tableEditor._textEditor.getCursorPosition().column !== 0) {
-        tableEditor.nextRow(opts);
-        event.preventDefault();
-        return;
-      }
+    {
+      key: "Shift-Cmd-Left",
+      run: () => tableEditor.alignColumn(Alignment.LEFT, opts),
     },
-    "Ctrl-Enter": () => {
-      tableEditor.escape(opts);
+    {
+      key: "Shift-Ctrl-Right",
+      run: () => tableEditor.alignColumn(Alignment.RIGHT, opts),
     },
-    "Cmd-Enter": () => {
-      tableEditor.escape(opts);
+    {
+      key: "Shift-Cmd-Right",
+      run: () => tableEditor.alignColumn(Alignment.RIGHT, opts),
     },
-    "Shift-Ctrl-Left": () => {
-      tableEditor.alignColumn(Alignment.LEFT, opts);
+    {
+      key: "Shift-Ctrl-Up",
+      run: () => tableEditor.alignColumn(Alignment.CENTER, opts),
     },
-    "Shift-Cmd-Left": () => {
-      tableEditor.alignColumn(Alignment.LEFT, opts);
+    {
+      key: "Shift-Cmd-Up",
+      run: () => tableEditor.alignColumn(Alignment.CENTER, opts),
     },
-    "Shift-Ctrl-Right": () => {
-      tableEditor.alignColumn(Alignment.RIGHT, opts);
+    {
+      key: "Shift-Ctrl-Down",
+      run: () => tableEditor.alignColumn(Alignment.NONE, opts),
     },
-    "Shift-Cmd-Right": () => {
-      tableEditor.alignColumn(Alignment.RIGHT, opts);
+    {
+      key: "Shift-Cmd-Down",
+      run: () => tableEditor.alignColumn(Alignment.NONE, opts),
     },
-    "Shift-Ctrl-Up": () => {
-      tableEditor.alignColumn(Alignment.CENTER, opts);
-    },
-    "Shift-Cmd-Up": () => {
-      tableEditor.alignColumn(Alignment.CENTER, opts);
-    },
-    "Shift-Ctrl-Down": () => {
-      tableEditor.alignColumn(Alignment.NONE, opts);
-    },
-    "Shift-Cmd-Down": () => {
-      tableEditor.alignColumn(Alignment.NONE, opts);
-    },
-    "Ctrl-Left": () => {
-      tableEditor.moveFocus(0, -1, opts);
-    },
-    "Cmd-Left": () => {
-      tableEditor.moveFocus(0, -1, opts);
-    },
-    "Ctrl-Right": () => {
-      tableEditor.moveFocus(0, 1, opts);
-    },
-    "Cmd-Right": () => {
-      tableEditor.moveFocus(0, 1, opts);
-    },
-    "Ctrl-Up": () => {
-      tableEditor.moveFocus(-1, 0, opts);
-    },
-    "Cmd-Up": () => {
-      tableEditor.moveFocus(-1, 0, opts);
-    },
-    "Ctrl-Down": () => {
-      tableEditor.moveFocus(1, 0, opts);
-    },
-    "Cmd-Down": () => {
-      tableEditor.moveFocus(1, 0, opts);
-    },
-    "Ctrl-K Ctrl-I": () => {
-      tableEditor.insertRow(opts);
-    },
-    "Cmd-K Cmd-I": () => {
-      tableEditor.insertRow(opts);
-    },
-    "Ctrl-L Ctrl-I": () => {
-      tableEditor.deleteRow(opts);
-    },
-    "Cmd-L Cmd-I": () => {
-      tableEditor.deleteRow(opts);
-    },
-    "Ctrl-K Ctrl-J": () => {
-      tableEditor.insertColumn(opts);
-    },
-    "Cmd-K Cmd-J": () => {
-      tableEditor.insertColumn(opts);
-    },
-    "Ctrl-L Ctrl-J": () => {
-      tableEditor.deleteColumn(opts);
-    },
-    "Cmd-L Cmd-J": () => {
-      tableEditor.deleteColumn(opts);
-    },
-    "Alt-Shift-Ctrl-Left": () => {
-      tableEditor.moveColumn(-1, opts);
-    },
-    "Alt-Shift-Cmd-Left": () => {
-      tableEditor.moveColumn(-1, opts);
-    },
-    "Alt-Shift-Ctrl-Right": () => {
-      tableEditor.moveColumn(1, opts);
-    },
-    "Alt-Shift-Cmd-Right": () => {
-      tableEditor.moveColumn(1, opts);
-    },
-    "Alt-Shift-Ctrl-Up": () => {
-      tableEditor.moveRow(-1, opts);
-    },
-    "Alt-Shift-Cmd-Up": () => {
-      tableEditor.moveRow(-1, opts);
-    },
-    "Alt-Shift-Ctrl-Down": () => {
-      tableEditor.moveRow(1, opts);
-    },
-    "Alt-Shift-Cmd-Down": () => {
-      tableEditor.moveRow(1, opts);
-    },
-  };
-  return new Map(Object.entries(obj));
+    { key: "Ctrl-Left", run: () => tableEditor.moveFocus(0, -1, opts) },
+    { key: "Cmd-Left", run: () => tableEditor.moveFocus(0, -1, opts) },
+    { key: "Ctrl-Right", run: () => tableEditor.moveFocus(0, 1, opts) },
+    { key: "Cmd-Right", run: () => tableEditor.moveFocus(0, 1, opts) },
+    { key: "Ctrl-Up", run: () => tableEditor.moveFocus(-1, 0, opts) },
+    { key: "Cmd-Up", run: () => tableEditor.moveFocus(-1, 0, opts) },
+    { key: "Ctrl-Down", run: () => tableEditor.moveFocus(1, 0, opts) },
+    { key: "Cmd-Down", run: () => tableEditor.moveFocus(1, 0, opts) },
+    { key: "Ctrl-K Ctrl-I", run: () => tableEditor.insertRow(opts) },
+    { key: "Cmd-K Cmd-I", run: () => tableEditor.insertRow(opts) },
+    { key: "Ctrl-L Ctrl-I", run: () => tableEditor.deleteRow(opts) },
+    { key: "Cmd-L Cmd-I", run: () => tableEditor.deleteRow(opts) },
+    { key: "Ctrl-K Ctrl-J", run: () => tableEditor.insertColumn(opts) },
+    { key: "Cmd-K Cmd-J", run: () => tableEditor.insertColumn(opts) },
+    { key: "Ctrl-L Ctrl-J", run: () => tableEditor.deleteColumn(opts) },
+    { key: "Cmd-L Cmd-J", run: () => tableEditor.deleteColumn(opts) },
+    { key: "Alt-Shift-Ctrl-Left", run: () => tableEditor.moveColumn(-1, opts) },
+    { key: "Alt-Shift-Cmd-Left", run: () => tableEditor.moveColumn(-1, opts) },
+    { key: "Alt-Shift-Ctrl-Right", run: () => tableEditor.moveColumn(1, opts) },
+    { key: "Alt-Shift-Cmd-Right", run: () => tableEditor.moveColumn(1, opts) },
+    { key: "Alt-Shift-Ctrl-Up", run: () => tableEditor.moveRow(-1, opts) },
+    { key: "Alt-Shift-Cmd-Up", run: () => tableEditor.moveRow(-1, opts) },
+    { key: "Alt-Shift-Ctrl-Down", run: () => tableEditor.moveRow(1, opts) },
+    { key: "Alt-Shift-Cmd-Down", run: () => tableEditor.moveRow(1, opts) },
+  ];
+  return tableKeyMap;
 };
 
 const viewPlugin = ViewPlugin.define(() => ({}), {
@@ -150,22 +105,11 @@ const viewPlugin = ViewPlugin.define(() => ({}), {
         tableEditor.resetSmartCursor();
         return false;
       }
-      const keyMap = keyMapOf(event, tableEditor);
-      return keyMapWith(event.code, keyMap);
+      event.preventDefault();
+      return priorRunHandlers(keyMapOf(view, tableEditor), view, event);
     },
   },
 });
-
-type KeyOperation = () => void;
-const keyMapWith = (code: string, keyMap: Map<string, KeyOperation>) => {
-  for (const [key, value] of keyMap) {
-    if (key === code) {
-      value();
-      return true;
-    }
-  }
-  return false;
-};
 
 export const betterTable = plugin({
   type: "default",
