@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.3.0",
     "@codemirror/language": "^6.9.1",
     "@codemirror/state": "^6.2.1",
     "@codemirror/view": "^6.19.0",
@@ -29,7 +30,8 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
     "unified": "^11.0.3",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "w3c-keyname": "^2.2.8"
   },
   "devDependencies": {
     "@iconify-json/mdi": "^1.1.54",
