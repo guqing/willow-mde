@@ -1,7 +1,14 @@
 import { plugin } from "ink-mde";
 import { createTableEditor } from "@/lib/mte-kernel";
 import { options, TableEditor, Alignment } from "@susisu/mte-kernel";
-import { EditorView, ViewPlugin } from "@codemirror/view";
+import { Decoration, EditorView, ViewPlugin } from "@codemirror/view";
+import { buildWidget } from "@/lib/codemirror-kit/decorations";
+import { RangeSet, StateField } from "@codemirror/state";
+import type { EditorState, Extension, Range } from "@codemirror/state";
+import type { DecorationSet } from "@codemirror/view";
+import { syntaxTree } from "@codemirror/language";
+import { TableRangeDetector } from "@/lib/mte-kernel/table-helper";
+import { renderMarkdownFregment } from "@/lib/remark";
 
 // options for the table editor
 const opts = options({
@@ -9,7 +16,11 @@ const opts = options({
   cursorIsInTable: true,
 });
 
-const keyMapOf = (event: KeyboardEvent, tableEditor: TableEditor): Map<string, KeyOperation> => {
+const keyMapOf = (
+  event: KeyboardEvent,
+  tableEditor: TableEditor
+): Map<string, KeyOperation> => {
+  console.log(event);
   const obj = {
     Tab: (): void => {
       event.preventDefault();
@@ -19,8 +30,11 @@ const keyMapOf = (event: KeyboardEvent, tableEditor: TableEditor): Map<string, K
       tableEditor.previousCell(opts);
     },
     Enter: () => {
-      event.preventDefault();
-      tableEditor.nextRow(opts);
+      if(tableEditor._textEditor.getCursorPosition().column !== 0) {
+        tableEditor.nextRow(opts);
+        event.preventDefault();
+        return;
+      }
     },
     "Ctrl-Enter": () => {
       tableEditor.escape(opts);
@@ -156,6 +170,102 @@ const keyMapWith = (code: string, keyMap: Map<string, KeyOperation>) => {
 export const betterTable = plugin({
   type: "default",
   value: () => {
-    return viewPlugin;
+    return [viewPlugin, tableExtension()];
   },
 });
+
+const tableWidget = (tableHtml: string) =>
+  buildWidget({
+    ignoreEvent: () => false,
+    toDOM: () => {
+      const container = document.createElement("div");
+      container.innerHTML = tableHtml;
+
+      const table = container.querySelector("table");
+      if (!table) {
+        throw new Error("table element not found");
+      }
+
+      table.setAttribute("aria-hidden", "true");
+      table.className = "willow-mde-table";
+      table.style.height = "100%";
+
+      return table;
+    },
+  });
+
+const tableExtension = (): Extension => {
+  const tableDecoration = (tableHtml: string) =>
+    Decoration.replace({
+      widget: tableWidget(tableHtml),
+    });
+
+  const decorate = (state: EditorState) => {
+    const widgets: Range<Decoration>[] = [];
+
+    const tableRangeDetector = new TableRangeDetector(state);
+    syntaxTree(state).iterate({
+      enter: ({ type, from, to }) => {
+        if (
+          type.name === "Table" &&
+          !tableRangeDetector.cursorIsInTable(opts)
+        ) {
+          const tableText = state.sliceDoc(from, to);
+          const tableHtml = renderMarkdownFregment(tableText);
+          widgets.push(tableDecoration(tableHtml).range(from, to));
+        }
+      },
+    });
+
+    return widgets.length > 0 ? RangeSet.of(widgets) : Decoration.none;
+  };
+
+  const stateField = StateField.define<DecorationSet>({
+    create(state) {
+      return decorate(state);
+    },
+    update(_references, { state }) {
+      return decorate(state);
+    },
+    provide(field) {
+      return EditorView.decorations.from(field);
+    },
+  });
+
+  const tableView = EditorView.theme({
+    ".willow-mde-table": {
+      width: "max-content",
+      maxWidth: "100%",
+      overflow: "auto",
+      "--willow-table-border-color": "#C8CCD0",
+    },
+    ".willow-mde-table thead": {
+      display: "table-header-group",
+      verticalAlign: "middle",
+      borderColor: "var(--willow-table-border-color)",
+    },
+    ".willow-mde-table tr:nth-child(2n)": {
+      backgroundColor: "#F5F8FA",
+    },
+    ".willow-mde-table th, td": {
+      padding: "6px 13px",
+      border: "1px solid var(--willow-table-border-color)",
+    },
+    ".willow-mde-table th": {
+      fontWeight: "600",
+    },
+    ".willow-mde-table tbody": {
+      display: "table-row-group",
+      verticalAlign: "middle",
+      borderColor: "var(--willow-table-border-color)",
+    },
+    ".willow-mde-table tr": {
+      borderTop: "1px solid #1F2328",
+      display: "table-row",
+      verticalAlign: "inherit",
+      borderColor: "var(--willow-table-border-color)",
+    },
+  });
+
+  return [stateField, tableView];
+};
