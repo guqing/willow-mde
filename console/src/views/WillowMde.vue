@@ -6,7 +6,6 @@ import { computedAsync, useDebounceFn } from "@vueuse/core";
 import {renderToHtml} from "@/lib/remark";
 import { willowLightTheme } from "../plugins/willow-theme";
 import { drawBetterSelection } from "../plugins/draw-selection";
-import { betterTable } from "@/plugins/better-table";
 import { Toolbar } from "../components/toolbar";
 
 type EditorConfig = {
@@ -98,7 +97,7 @@ const options: Ink.Options = reactive({
   vim: false,
 });
 
-options.plugins?.push(willowLightTheme, drawBetterSelection, betterTable);
+options.plugins?.push(willowLightTheme, drawBetterSelection);
 
 watch(options, (newValue, oldValue) => {
   if (editor.value) {
