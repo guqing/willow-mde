@@ -10,7 +10,7 @@ import { insertNewlineAndIndent } from "@codemirror/commands";
 import { syntaxTree } from "@codemirror/language";
 import { TableRangeDetector } from "@/lib/mte-kernel/table-helper";
 import { renderMarkdownFregment } from "@/lib/remark";
-import { priorRunHandlers, buildKeymap } from "@/lib/codemirror-kit/keymap";
+import { priorRunHandlers } from "@/lib/codemirror-kit/keymap";
 
 // options for the table editor
 const opts = options({
@@ -23,12 +23,26 @@ const keyMapOf = (
   tableEditor: TableEditor
 ): ReadonlyArray<KeyBinding> => {
   const tableKeyMap: ReadonlyArray<KeyBinding> = [
-    { key: "Tab", run: () => tableEditor.nextCell(opts) },
-    { key: "Shift-Tab", run: () => tableEditor.previousCell(opts) },
+    {
+      key: "Tab",
+      run: () => {
+        tableEditor.nextCell(opts);
+        return true;
+      },
+    },
+    {
+      key: "Shift-Tab",
+      run: () => {
+        tableEditor.previousCell(opts);
+        return true;
+      },
+    },
     {
       key: "Enter",
       run: () => {
-        if (tableEditor._textEditor.getCursorPosition().column !== 0) {
+        const {row, column} = tableEditor._textEditor.getCursorPosition();
+        const text = tableEditor._textEditor.getLine(row);
+        if (column !== 0 &&  column < text.length) {
           tableEditor.nextRow(opts);
           return true;
         }
@@ -105,8 +119,16 @@ const viewPlugin = ViewPlugin.define(() => ({}), {
         tableEditor.resetSmartCursor();
         return false;
       }
-      event.preventDefault();
-      return priorRunHandlers(keyMapOf(view, tableEditor), view, event);
+
+      const handled = priorRunHandlers(
+        keyMapOf(view, tableEditor),
+        view,
+        event
+      );
+      if (handled == undefined || handled) {
+        event.preventDefault();
+      }
+      return handled;
     },
   },
 });

@@ -5,7 +5,6 @@ import browser from "./browser";
 
 export function priorRunHandlers(bindings: readonly KeyBinding[], view: EditorView, event: KeyboardEvent) {
   const keyMap = getKeymap(bindings, view);
-  console.log(keyMap)
   return runHandlers(keyMap, event, view, "editor")
 }
 
