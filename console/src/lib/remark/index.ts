@@ -7,16 +7,20 @@ import remarkBreaks from "remark-breaks";
 import remarkImages from "remark-images";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
+import slug from 'rehype-slug';
+import remarkHeadingId from 'remark-heading-id';
 
 export const renderToHtml = async (sourceCode: string): Promise<string> => {
   var file = await unified()
-    .use(remarkParse)
+    .use(remarkParse) // 解析 Markdown
     .use(remarkGfm)
     .use(remarkBreaks)
     .use(remarkImages)
-    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(remarkHeadingId)
+    .use(remarkRehype, { allowDangerousHtml: true }) // 将 Markdown AST 转换为 HTML AST
     .use(rehypeRaw)
-    .use(rehypeStringify)
+    .use(slug) // 为所有标题元素添加 ID
+    .use(rehypeStringify) // 将 HTML AST 转换为字符串形式的 HTML
     .use(rehypeHighlight)
     .process(sourceCode);
   return String(file);
