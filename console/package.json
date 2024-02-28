@@ -1,6 +1,5 @@
 {
   "name": "@guching/willow-mde",
-  "version": "1.0.0-beta.2",
   "private": true,
   "scripts": {
     "dev": "vite build --watch --mode=development",
