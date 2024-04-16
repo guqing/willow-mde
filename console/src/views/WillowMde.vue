@@ -3,10 +3,10 @@ import { ink } from "ink-mde";
 import type * as Ink from "ink-mde";
 import { onMounted, reactive, ref, watch, type Ref } from "vue";
 import { computedAsync, useDebounceFn } from "@vueuse/core";
-import {renderToHtml} from "@/lib/remark";
+import { renderToHtml } from "@/lib/remark";
 import { willowLightTheme } from "../plugins/willow-theme";
-import { drawBetterSelection } from "../plugins/draw-selection";
 import { Toolbar } from "../components/toolbar";
+import { selectionMark } from "../plugins/selection-mark";
 
 type EditorConfig = {
   basic: {
@@ -54,7 +54,9 @@ const options: Ink.Options = reactive({
   files: {
     clipboard: false,
     dragAndDrop: false,
-    handler: () => {},
+    handler: () => {
+      return;
+    },
     injectMarkup: true,
     types: ["image/*"],
   },
@@ -97,15 +99,15 @@ const options: Ink.Options = reactive({
   vim: false,
 });
 
-options.plugins?.push(willowLightTheme, drawBetterSelection);
+options.plugins?.push(willowLightTheme, selectionMark);
 
-watch(options, (newValue, oldValue) => {
+watch(options, (newValue) => {
   if (editor.value) {
     editor.value.reconfigure(newValue);
   }
 });
 
-watch(markdown, (newValue, oldValue) => {
+watch(markdown, (newValue) => {
   if (editor.value?.getDoc() !== newValue) {
     editor.value?.update(newValue);
   }
@@ -131,9 +133,9 @@ onMounted(async () => {
       "/apis/api.willow.guqing.github.io/editor-options"
     );
     const editorConfig: EditorConfig = await response.json();
-    const { vimMode, spellcheck } = editorConfig?.basic;
+    const { vimMode, spellcheck } = editorConfig.basic || {};
     options.vim = vimMode;
-    const interfaceOption = options.interface as Record<string, any>;
+    const interfaceOption = options.interface as Record<string, unknown>;
     interfaceOption.spellcheck = spellcheck;
   } catch (e) {
     // ignore this
@@ -142,7 +144,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Toolbar :editor="editor" v-if="editor" />
+  <Toolbar v-if="editor" :editor="editor" />
   <div ref="willow" class="willow-mde"></div>
 </template>
 
@@ -172,6 +174,7 @@ onMounted(async () => {
 .willow-mde .cm-focused {
   outline: unset !important;
 }
+
 .willow-mde .cm-line img.cm-widgetBuffer {
   display: none !important;
   height: 0 !important;
