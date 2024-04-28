@@ -11,7 +11,9 @@ spec:
     name: guqing
     website: https://github.com/guqing/willow-mde
   logo: logo.svg
-  homepage: https://github.com/guqing/willow-mde
+  homepage: https://github.com/guqing/willow-mde#readme
+  repo: https://github.com/guqing/willow-mde
+  issues: https://github.com/guqing/willow-mde/issues
   displayName: "Willow Markdown 编辑器"
   description: "一个漂亮、现代、可定制的 Markdown 编辑器，由 CodeMirror 6 和 TypeScript 提供支持。"
   settingName: willow-mde-setting

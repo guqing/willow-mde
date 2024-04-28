@@ -12,5 +12,5 @@ jobs:
   ci:
     uses: halo-sigs/reusable-workflows/.github/workflows/plugin-ci.yaml@v1
     with:
-      skip-node-setup: true
+      skip-node-setup: false
       ui-path: "ui"
