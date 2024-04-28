@@ -11,6 +11,11 @@ spec:
           label: "启用 VIM 模式"
           name: vimMode
           value: false
+        - $formkit: text
+          label: "VIM 退回到正常模式的组合键"
+          help: "会映射此组合键到 VIM 的 <ESC> 按键，如 jj 或 kk"
+          name: vimEscKeyMapping
+          value: ""
         - $formkit: checkbox
           label: "拼写检查"
           name: spellcheck
