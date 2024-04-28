@@ -7,12 +7,18 @@ import { renderToHtml } from "@/lib/remark";
 import { willowLightTheme } from "../plugins/willow-theme";
 import { Toolbar } from "../components/toolbar";
 import { selectionMark } from "../plugins/selection-mark";
+import { Vim } from "@replit/codemirror-vim";
 
 type EditorConfig = {
   basic: {
     vimMode: boolean;
+    vimEscKeyMapping?: string;
     spellcheck: boolean;
   };
+};
+
+const hasEscKeyMapping = (vimEscKeyMapping: string | undefined) => {
+  return vimEscKeyMapping && vimEscKeyMapping.trim().length > 0;
 };
 
 const willow: Ref<HTMLElement | null> = ref(null);
@@ -133,12 +139,20 @@ onMounted(async () => {
       "/apis/api.willow.guqing.github.io/editor-options"
     );
     const editorConfig: EditorConfig = await response.json();
-    const { vimMode, spellcheck } = editorConfig.basic || {};
+    const { vimMode, spellcheck, vimEscKeyMapping } = editorConfig.basic || {};
     options.vim = vimMode;
+    if (hasEscKeyMapping(vimEscKeyMapping)) {
+      if (vimMode) {
+        Vim.map(vimEscKeyMapping, "<Esc>", "insert");
+      } else {
+        Vim.unmap(vimEscKeyMapping, "insert");
+      }
+    }
     const interfaceOption = options.interface as Record<string, unknown>;
     interfaceOption.spellcheck = spellcheck;
   } catch (e) {
     // ignore this
+    console.error(e);
   }
 });
 </script>
