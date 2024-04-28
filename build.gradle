@@ -28,11 +28,16 @@ test {
 }
 
 node {
-    nodeProjectDir = file("${project.projectDir}/console")
+    nodeProjectDir = file("${project.projectDir}/ui")
+}
+
+tasks.register('installDepsForUI', PnpmTask) {
+    args = ['install']
 }
 
 task buildFrontend(type: PnpmTask) {
     args = ['build']
+    dependsOn('installDepsForUI')
 }
 
 build {
