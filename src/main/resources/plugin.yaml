@@ -2,6 +2,8 @@ apiVersion: plugin.halo.run/v1alpha1
 kind: Plugin
 metadata:
   name: willow-mde
+  annotations:
+    store.halo.run/app-id: app-kqZUw
 spec:
   enabled: true
   requires: ">=2.10.0"
