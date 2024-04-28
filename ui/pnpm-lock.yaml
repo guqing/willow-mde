@@ -19,6 +19,9 @@ dependencies:
   '@halo-dev/console-shared':
     specifier: ^2.10.0
     version: 2.10.0(vue-router@4.2.5)(vue@3.3.4)
+  '@replit/codemirror-vim':
+    specifier: ^6.2.1
+    version: 6.2.1(@codemirror/commands@6.3.0)(@codemirror/language@6.9.1)(@codemirror/search@6.5.4)(@codemirror/state@6.2.1)(@codemirror/view@6.21.3)
   '@susisu/mte-kernel':
     specifier: ^2.1.1
     version: 2.1.1
@@ -1125,8 +1128,8 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@replit/codemirror-vim@6.0.14(@codemirror/commands@6.3.0)(@codemirror/language@6.9.1)(@codemirror/search@6.5.4)(@codemirror/state@6.2.1)(@codemirror/view@6.21.3):
-    resolution: {integrity: sha512-wwhqhvL76FdRTdwfUWpKCbv0hkp2fvivfMosDVlL/popqOiNLtUhL02ThgHZH8mus/NkVr5Mj582lyFZqQrjOA==}
+  /@replit/codemirror-vim@6.2.1(@codemirror/commands@6.3.0)(@codemirror/language@6.9.1)(@codemirror/search@6.5.4)(@codemirror/state@6.2.1)(@codemirror/view@6.21.3):
+    resolution: {integrity: sha512-qDAcGSHBYU5RrdO//qCmD8K9t6vbP327iCj/iqrkVnjbrpFhrjOt92weGXGHmTNRh16cUtkUZ7Xq7rZf+8HVow==}
     peerDependencies:
       '@codemirror/commands': ^6.0.0
       '@codemirror/language': ^6.1.0
@@ -3076,7 +3079,7 @@ packages:
       '@lezer/common': 1.1.0
       '@lezer/highlight': 1.1.6
       '@lezer/markdown': 1.1.0
-      '@replit/codemirror-vim': 6.0.14(@codemirror/commands@6.3.0)(@codemirror/language@6.9.1)(@codemirror/search@6.5.4)(@codemirror/state@6.2.1)(@codemirror/view@6.21.3)
+      '@replit/codemirror-vim': 6.2.1(@codemirror/commands@6.3.0)(@codemirror/language@6.9.1)(@codemirror/search@6.5.4)(@codemirror/state@6.2.1)(@codemirror/view@6.21.3)
       katex: 0.16.9
       solid-js: 1.8.1
       style-mod: 4.1.0
