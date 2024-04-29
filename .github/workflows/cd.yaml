@@ -14,5 +14,7 @@ jobs:
     permissions:
       contents: write
     with:
+      pnpm-version: "9"
       app-id: app-kqZUw
       skip-node-setup: false
+      ui-path: "ui"
