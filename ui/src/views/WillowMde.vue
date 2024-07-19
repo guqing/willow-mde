@@ -22,7 +22,6 @@ const hasEscKeyMapping = (vimEscKeyMapping: string | undefined) => {
 };
 
 const willow: Ref<HTMLElement | null> = ref(null);
-const markdown = ref("");
 const editor = ref<Ink.Instance>();
 
 const props = withDefaults(
@@ -36,27 +35,8 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (event: "update:raw", value: string): void;
-  (event: "update:content", value: string): void;
-  (event: "update", value: string): void;
-}>();
-
-// debounce OnUpdate
-const debounceOnUpdate = useDebounceFn(() => {
-  emit("update:raw", markdown.value);
-  emit("update:content", html.value || "");
-  emit("update", markdown.value);
-}, 250);
-
 const options: Ink.Options = reactive({
-  doc: markdown.value,
-  hooks: {
-    afterUpdate: (doc: string) => {
-      markdown.value = doc;
-      debounceOnUpdate();
-    },
-  },
+  doc: props.raw,
   files: {
     clipboard: false,
     dragAndDrop: false,
@@ -105,27 +85,33 @@ const options: Ink.Options = reactive({
   vim: false,
 });
 
+const emit = defineEmits<{
+  (event: "update:raw", value: string): void;
+  (event: "update:content", value: string): void;
+  (event: "update", value: string): void;
+}>();
+
+// debounce OnUpdate
+const debounceOnUpdate = useDebounceFn(() => {
+  emit("update:raw", options.doc || "");
+  emit("update:content", html.value || "");
+  emit("update", options.doc || "");
+}, 250);
+
 options.plugins?.push(willowLightTheme, selectionMark);
 
 watch(options, (newValue) => {
   if (editor.value) {
     editor.value.reconfigure(newValue);
-  }
-});
-
-watch(markdown, (newValue) => {
-  if (editor.value?.getDoc() !== newValue) {
-    editor.value?.update(newValue);
+    debounceOnUpdate();
   }
 });
 
 const html = computedAsync(async () => {
-  return await renderToHtml(markdown.value);
+  return await renderToHtml(options.doc || "");
 }, null);
 
 onMounted(async () => {
-  markdown.value = props.raw;
-
   if (willow.value) {
     editor.value = ink(willow.value, options);
 
