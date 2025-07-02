@@ -1,7 +1,7 @@
 import { definePlugin, type EditorProvider } from "@halo-dev/console-shared";
-import { markRaw } from "vue";
-import WillowMde from "./views/WillowMde.vue";
-import logo from './assets/logo.svg'
+import { defineAsyncComponent } from "vue";
+import logo from "./assets/logo.svg";
+import { VLoading } from "@halo-dev/components";
 
 export default definePlugin({
   extensionPoints: {
@@ -10,9 +10,12 @@ export default definePlugin({
         {
           name: "willow-mde",
           displayName: "Willow Markdown",
-          component: markRaw(WillowMde),
+          component: defineAsyncComponent({
+            loader: () => import("./views/WillowMde.vue"),
+            loadingComponent: VLoading,
+          }),
           rawType: "markdown",
-          logo: logo
+          logo: logo,
         },
       ];
     },
