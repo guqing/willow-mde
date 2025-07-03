@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id "com.github.node-gradle.node" version "5.0.0"
     id "io.freefair.lombok" version "8.0.1"
-    id "run.halo.plugin.devtools" version "0.0.7"
+    id "run.halo.plugin.devtools" version "0.6.1"
 }
 
 group 'io.github.guqing'
@@ -48,5 +48,5 @@ build {
 }
 
 halo {
-    version = '2.17'
+    version = '2.21.0'
 }
