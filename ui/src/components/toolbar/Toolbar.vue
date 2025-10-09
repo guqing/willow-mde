@@ -138,11 +138,11 @@ const onAttachmentSelect = (attachments: AttachmentLike[]) => {
     <div class="willow-mde-toolbar">
       <div class="willow-mde-container">
         <button
-          class="willow-button"
           v-for="action in actions"
           :key="action.type"
-          @click="action.onclick"
+          class="willow-button"
           type="button"
+          @click="action.onclick"
         >
           <component :is="action.icon" />
         </button>
