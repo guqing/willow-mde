@@ -7,21 +7,20 @@ metadata:
 spec:
   enabled: true
   requires: ">=2.21.0"
-  version: 1.1.2-porter-fixed
+  version: 1.2.0
   author:
     name: Porter (基于 guqing 原作)
-    website: https://github.com/Porter-coder/willow-mde
+    website: https://github.com/guqing/willow-mde
   contributors:
     - name: Porter
-      website: https://github.com/Porter-coder/willow-mde
+      website: https://github.com/guqing/willow-mde
   logo: logo.svg
-  homepage: https://github.com/Porter-coder/willow-mde#readme
-  repo: https://github.com/Porter-coder/willow-mde
-  issues: https://github.com/Porter-coder/willow-mde/issues
-  displayName: "Willow Markdown 编辑器 (Porter优化版)"
-  description: "一个漂亮、现代、可定制的 Markdown 编辑器，由 CodeMirror 6 和 TypeScript 提供支持。本版本由 Porter 修复编辑器重复创建问题并优化性能。"
+  homepage: https://github.com/guqing/willow-mde#readme
+  repo: https://github.com/guqing/willow-mde
+  issues: https://github.com/guqing/willow-mde/issues
+  displayName: "Willow Markdown 编辑器"
+  description: "一个漂亮、现代、可定制的 Markdown 编辑器，由 CodeMirror 6 和 TypeScript 提供支持。"
   settingName: willow-mde-setting
-  configMapName: willow-mde-config
   license:
     - name: "GPL-3.0"
       url: "https://github.com/halo-dev/plugin-starter/blob/main/LICENSE"
