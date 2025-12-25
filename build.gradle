@@ -1,12 +1,12 @@
 plugins {
     id 'java'
     id "com.github.node-gradle.node" version "5.0.0"
-    id "io.freefair.lombok" version "8.0.1"
+    id "io.freefair.lombok" version "8.14.3"
     id "run.halo.plugin.devtools" version "0.6.1"
 }
 
 group 'io.github.guqing'
-sourceCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
     mavenCentral()
